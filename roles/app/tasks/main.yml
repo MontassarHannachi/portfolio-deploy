@@ -1,0 +1,55 @@
+
+---
+- name: Clone or update portfolio repository
+  become_user: "{{ deploy_user }}"
+  ansible.builtin.git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_dir }}"
+    version: "{{ app_version }}"
+    update: true
+  register: portfolio_repo
+  notify: Restart portfolio
+
+- name: Check whether dependencies are installed
+  ansible.builtin.stat:
+    path: "{{ app_dir }}/node_modules/.package-lock.json"
+  register: npm_marker
+
+- name: Install application dependencies
+  become_user: "{{ deploy_user }}"
+  ansible.builtin.command:
+    cmd: npm ci
+    chdir: "{{ app_dir }}"
+  when: portfolio_repo.changed or not npm_marker.stat.exists
+  register: npm_install
+
+- name: Check whether Next.js build exists
+  ansible.builtin.stat:
+    path: "{{ app_dir }}/.next/BUILD_ID"
+  register: build_marker
+
+- name: Build Next.js application
+  become_user: "{{ deploy_user }}"
+  ansible.builtin.command:
+    cmd: npm run build
+    chdir: "{{ app_dir }}"
+  when: >
+    portfolio_repo.changed or
+    npm_install.changed | default(false) or
+    not build_marker.stat.exists
+
+- name: Install portfolio systemd service
+  ansible.builtin.template:
+    src: portfolio.service.j2
+    dest: /etc/systemd/system/portfolio.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart portfolio
+
+- name: Enable and start portfolio service
+  ansible.builtin.systemd:
+    name: portfolio
+    enabled: true
+    state: started
+    daemon_reload: true

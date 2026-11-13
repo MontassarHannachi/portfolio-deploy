@@ -1,0 +1,6 @@
+---
+- name: Restart portfolio
+  ansible.builtin.systemd:
+    name: portfolio
+    state: restarted
+    daemon_reload: true

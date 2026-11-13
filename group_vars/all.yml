@@ -1,0 +1,37 @@
+---
+# Application configuration
+
+app_name: portfolio
+
+app_repo: "https://github.com/MontassarHannachi/portfolio.git"
+
+app_version: main
+
+app_dir: /opt/portfolio
+
+app_port: 3000
+
+app_host: "127.0.0.1"
+
+# Deployment user
+
+deploy_user: deploy
+
+deploy_group: deploy
+
+deploy_home: /home/deploy
+
+# Node.js configuration
+
+nodejs_version: "24"
+
+# Nginx configuration
+
+server_name: "192.168.213.129"
+
+nginx_config_file: portfolio
+
+# Application environment
+
+node_env: production
+nginx_port: 8080

@@ -1,0 +1,17 @@
+[Unit]
+Description=Portfolio Next.js Application
+After=network.target
+
+[Service]
+Type=simple
+User={{ deploy_user }}
+Group={{ deploy_group }}
+WorkingDirectory={{ app_dir }}
+Environment=NODE_ENV={{ node_env }}
+Environment=PORT={{ app_port }}
+ExecStart=/usr/local/bin/pm2-runtime start npm --name portfolio -- start -- --hostname {{ app_host }}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

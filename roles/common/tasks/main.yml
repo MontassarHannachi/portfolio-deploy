@@ -1,0 +1,36 @@
+---
+- name: Update APT package cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install essential packages
+  ansible.builtin.apt:
+    name:
+      - git
+      - curl
+      - ca-certificates
+      - build-essential
+    state: present
+
+- name: Ensure deployment group exists
+  ansible.builtin.group:
+    name: "{{ deploy_group }}"
+    state: present
+
+- name: Ensure deployment user exists
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    group: "{{ deploy_group }}"
+    home: "{{ deploy_home }}"
+    shell: /bin/bash
+    create_home: true
+    state: present
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_group }}"
+    mode: "0755"
