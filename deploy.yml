@@ -1,0 +1,14 @@
+---
+- name: Deploy Next.js portfolio
+  hosts: portfolio
+  become: false
+
+  tasks:
+    - name: Execute application deployment tasks
+      ansible.builtin.import_tasks: roles/app/tasks/deploy.yml
+
+  handlers:
+    - name: Restart portfolio (restricted)
+      ansible.builtin.command:
+        cmd: sudo -n /usr/local/sbin/restart-portfolio
+      changed_when: true
